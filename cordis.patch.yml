@@ -1,0 +1,12 @@
+- insert:
+    - id: dsh-workspace-sync
+      name: dsh-workspace-sync
+      config:
+        enabled: true
+        watchParentDirs: true
+        followWorkingDirectory: true
+        followWorkspaceRegistry: true
+        syncWorkspaceFiles: true
+        syncSandboxPolicy: true
+        watchDebounceMs: 150
+        verbose: false

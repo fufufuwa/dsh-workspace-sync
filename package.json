@@ -1,0 +1,60 @@
+{
+  "name": "dsh-workspace-sync",
+  "version": "0.1.0",
+  "description": "Automatically track and synchronize local project/workspace directory renames in DeepSeek Harness (dsh) via filesystem inode identity.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "dsh-workspace-sync": "bin/dsh-workspace-sync.js"
+  },
+  "files": [
+    "lib",
+    "bin",
+    "scripts",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test/workspace-sync.test.js",
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "workspace",
+    "working-directory",
+    "sync"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fufufuwa/dsh-workspace-sync.git"
+  },
+  "homepage": "https://github.com/fufufuwa/dsh-workspace-sync#readme",
+  "bugs": {
+    "url": "https://github.com/fufufuwa/dsh-workspace-sync/issues"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "install": {
+      "preferred": "tarball",
+      "tarball": "https://codeload.github.com/fufufuwa/dsh-workspace-sync/tar.gz/refs/heads/master",
+      "zip": "https://codeload.github.com/fufufuwa/dsh-workspace-sync/zip/refs/heads/master",
+      "git": "https://github.com/fufufuwa/dsh-workspace-sync.git"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
