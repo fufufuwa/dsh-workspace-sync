@@ -306,6 +306,40 @@ test("WorkingDirectoryService hook follows renamed directory even with frozen se
   assert.equal(wd.get(session), realRenamed);
 });
 
+test("workingDirectory scope must not bare-read `fs` (cordis inject-guard regression)", async (t) => {
+  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "dsh-ws-sync-guard-"));
+  t.after(async () => {
+    await fs.promises.rm(root, { recursive: true, force: true });
+  });
+
+  const wd = createMockWorkingDirectoryService();
+  const ctx = createMockContext({ workingDirectory: wd });
+  // Simulate the real cordis proxy guard: the sub-context created by
+  // `ctx.inject(["workingDirectory"], ...)` only declared `workingDirectory`,
+  // so a bare `scope.fs` property read throws instead of returning undefined.
+  Object.defineProperty(ctx, "fs", {
+    get() {
+      throw new Error('cannot get property "fs" without inject');
+    },
+    configurable: true,
+  });
+  applyPlugin(ctx, { storagePath: path.join(root, "workspace-sync.json"), watchParentDirs: false });
+  t.after(() => ctx.dispose());
+
+  const session = {
+    id: "sess-guard",
+    header: Object.freeze({ id: "sess-guard", cwd: root }),
+  };
+  const agent = { session, ctx: { fiber: { assertActive() {} } } };
+
+  // Before the fix, the patched wd.ensure threw
+  // `cannot get property "fs" without inject` on the very first turn.
+  assert.equal(await wd.ensure(agent), root);
+
+  // The prepended system-prompt/assemble hook must survive the same guard.
+  await ctx.emitWaterfall("system-prompt/assemble", {}, { agent, signal: undefined });
+});
+
 test("WorkspaceRegistry hook preserves accounted sessions, updates path/default title, and preserves custom title", async (t) => {
   const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "dsh-ws-sync-reg-"));
   t.after(async () => {
